@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CookieRun India - Create Your Cookie!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { font-family: 'Fredoka One', cursive !important; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    const CookieRunAd = () => {
+      const [stage, setStage] = useState('start');
+      const [selectedFlavor, setSelectedFlavor] = useState(null);
+      const [selectedPersonality, setSelectedPersonality] = useState(null);
+      const [bakingResult, setBakingResult] = useState(null);
+      const [finalCookie, setFinalCookie] = useState(null);
+      const [ovenTimer, setOvenTimer] = useState(0);
+      const [isOvenActive, setIsOvenActive] = useState(false);
+      const [hoveredItem, setHoveredItem] = useState(null);
+
+      const flavors = [
+        { id: 'cardamom', name: 'Cardamom & Rose', emoji: '🌹', cookie: 'gulab' },
+        { id: 'cashew', name: 'Cashew & Milk', emoji: '🥜', cookie: 'kaju' },
+        { id: 'pistachio', name: 'Pistachio', emoji: '🌰', cookie: 'pistachio' },
+        { id: 'strawberry', name: 'Strawberry', emoji: '🍓', cookie: 'strawberry' },
+        { id: 'chocolate', name: 'Chocolate', emoji: '🍫', cookie: 'buttercream' },
+        { id: 'cotton', name: 'Cotton Candy', emoji: '☁️', cookie: 'cotton' },
+        { id: 'kulfi', name: 'Kulfi & Nuts', emoji: '🍦', cookie: 'cricketer' },
+        { id: 'maple', name: 'Maple Syrup', emoji: '🥞', cookie: 'pancake' },
+        { id: 'dark', name: 'Dark Cocoa', emoji: '💀', cookie: 'zombie' },
+        { id: 'protein', name: 'Protein & Almond', emoji: '💪', cookie: 'muscle' },
+        { id: 'rum', name: 'Rum & Coconut', emoji: '🏴‍☠️', cookie: 'pirate' }
+      ];
+
+      const personalities = [
+        { id: 'courage', name: 'Courage', emoji: '❤️', color: '#ff4444' },
+        { id: 'shy', name: 'Shyness', emoji: '💗', color: '#ff69b4' },
+        { id: 'persistence', name: 'Persistence', emoji: '🧡', color: '#ff8833' },
+        { id: 'fear', name: 'Fear', emoji: '💜', color: '#9b59b6' }
+      ];
+
+      const cookies = {
+        gulab: {
+          name: 'Gulab Jamun Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/9/92/Gulab_jamun_cookie.png/revision/latest?cb=20241211070057',
+          story: 'Little Gulab Jamun Cookie fell in love with dance at her very first Holi, many years ago. Now, there is no other dancer as graceful as she is!',
+          skill: 'Color Splash Festival'
+        },
+        kaju: {
+          name: 'Kaju Katli Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/1/16/Kaju_katli_cookie.png/revision/latest?cb=20241211070148',
+          story: 'A royal blend of rich kaju and creamy condensed milk! This prince has traded his royal crown for a trusty spear, embarking on a secret quest.',
+          skill: 'Master of the Spear'
+        },
+        pistachio: {
+          name: 'Pistachio Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/3/35/Pistachio_Cookie.png/revision/latest?cb=20180426192342',
+          story: 'With dreams as bright as the stars, Pistachio Cookie brings light and hope wherever they go!',
+          skill: 'Starlight Dash'
+        },
+        strawberry: {
+          name: 'Strawberry Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/2/20/Img_cutscene6001_01_04.png/revision/latest?cb=20221108215542',
+          story: 'Sweet and gentle, Strawberry Cookie spreads joy with every step!',
+          skill: 'Berry Magic'
+        },
+        buttercream: {
+          name: 'Buttercream Choco Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/d/d5/Buttercream_choco_cookie.png/revision/latest?cb=20240229075944',
+          story: 'Rich and smooth, Buttercream Choco Cookie melts hearts with creamy charm!',
+          skill: 'Chocolate Wave'
+        },
+        cotton: {
+          name: 'Cotton Candy Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/1/12/Cotton_Candy_Cookie.png/revision/latest?cb=20190221102416',
+          story: 'Light as a cloud and sweet as sugar!',
+          skill: 'Sugar Cloud'
+        },
+        cricketer: {
+          name: 'Cricketer Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/a/ae/Cricketer_cookie.png/revision/latest?cb=20250930160814',
+          story: 'With a Kulfi bat and protective gear, this all-rounder captivates fans!',
+          skill: 'Cricket Strike'
+        },
+        pancake: {
+          name: 'Pancake Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/9/9c/Pancake_Cookie.png/revision/latest?cb=20180426193606',
+          story: 'Fluffy and carefree, bouncing through life with endless energy!',
+          skill: 'Acrobatic Jump'
+        },
+        zombie: {
+          name: 'Zombie Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/2/2a/Pkg_img_cookie0013.png/revision/latest?cb=20241127105046',
+          story: 'Rising from the darkest ovens with eerie charm!',
+          skill: 'Undead March'
+        },
+        muscle: {
+          name: 'Muscle Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/0/00/Img_cookie0015.png/revision/latest?cb=20250306021509',
+          story: 'Pumped up and ready! Flexing through obstacles with raw strength!',
+          skill: 'Power Flex'
+        },
+        pirate: {
+          name: 'Pirate Cookie',
+          image: 'https://static.wikia.nocookie.net/cookierun/images/5/58/Img_cookie0016.png/revision/latest/scale-to-width-down/1000?cb=20250310230456',
+          story: 'Sailing the seven seas in search of treasure! Fearless and bold!',
+          skill: 'Treasure Hunt'
+        }
+      };
+
+      useEffect(() => {
+        if (isOvenActive) {
+          const interval = setInterval(() => {
+            setOvenTimer(prev => prev >= 100 ? (setIsOvenActive(false), 100) : prev + 1);
+          }, 50);
+          return () => clearInterval(interval);
+        }
+      }, [isOvenActive]);
+
+      const stopBaking = () => {
+        setIsOvenActive(false);
+        const result = ovenTimer < 30 ? 'bad' : ovenTimer < 70 ? 'good' : 'perfect';
+        const message = result === 'bad' ? 'Your Cookie burned!' : result === 'good' ? 'Hmm, smells pretty good!' : 'Perfect! Your Cookie is deliciously baked!';
+        setBakingResult({ level: result, message });
+        setFinalCookie(cookies[flavors.find(f => f.id === selectedFlavor).cookie]);
+        setTimeout(() => setStage('result'), 2000);
+      };
+
+      const reset = () => {
+        setStage('start');
+        setSelectedFlavor(null);
+        setSelectedPersonality(null);
+        setBakingResult(null);
+        setFinalCookie(null);
+        setOvenTimer(0);
+        setIsOvenActive(false);
+        setHoveredItem(null);
+      };
+
+      return (
+        <div>
+          {/* START SCREEN */}
+          {stage === 'start' && (
+            <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute top-10 left-20 text-3xl animate-pulse opacity-80">⭐</div>
+              <div className="absolute top-20 right-32 text-2xl animate-pulse opacity-80" style={{animationDelay: '0.5s'}}>⭐</div>
+              <div className="absolute top-12 right-24 text-6xl opacity-50">🌙</div>
+              <div className="absolute top-8 left-16 flex gap-4"><div className="text-4xl">🧺</div><div className="text-3xl">🍶</div></div>
+              <div className="absolute top-8 right-16 flex gap-4"><div className="text-3xl">🫙</div><div className="text-4xl">🥛</div></div>
+              <div className="absolute left-0 bottom-32 w-40 h-56 opacity-50 rounded-r-3xl" style={{background: 'linear-gradient(to bottom, #708090, #2F4F4F)'}}>
+                <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-black rounded border-4 border-gray-600"></div>
+              </div>
+              <div className="absolute right-0 bottom-32 w-40 h-56 opacity-50 rounded-l-3xl" style={{background: 'linear-gradient(to bottom, #708090, #2F4F4F)'}}>
+                <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-black rounded border-4 border-gray-600"></div>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              
+              <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-8">
+                <div className="text-9xl mb-8 animate-bounce">🍪</div>
+                <h1 className="text-7xl mb-6" style={{color: '#ffd54f', textShadow: '5px 5px 0px #3d2817, -3px -3px 0px #3d2817, 3px -3px 0px #3d2817, -3px 3px 0px #3d2817, 3px 3px 0px #3d2817, -5px 0px 0px #3d2817, 5px 0px 0px #3d2817, 0px -5px 0px #3d2817, 0px 5px 0px #3d2817'}}>
+                  Create Your Cookie!
+                </h1>
+                <div className="bg-white/95 rounded-3xl px-10 py-5 mb-10 shadow-2xl border-4 border-yellow-400">
+                  <p className="text-gray-800 text-xl">Choose ingredients and bake your own Cookie character!</p>
+                </div>
+                <button onClick={() => setStage('flavor')} className="relative group">
+                  <div className="absolute -inset-2 bg-orange-400 rounded-full blur-lg opacity-60 group-hover:opacity-90 animate-pulse"></div>
+                  <div className="relative bg-orange-500 text-white px-16 py-7 rounded-full text-3xl hover:scale-110 hover:bg-orange-600 transition-all shadow-2xl flex items-center gap-4 border-4 border-white">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                    Start Creating!
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                  </div>
+                </button>
+                <div className="flex gap-8 text-6xl mt-8">
+                  <span className="animate-bounce">🍪</span>
+                  <span className="animate-bounce" style={{animationDelay: '0.2s'}}>☕</span>
+                  <span className="animate-bounce" style={{animationDelay: '0.4s'}}>🍬</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 1 */}
+          {stage === 'flavor' && (
+            <div className="min-h-screen relative overflow-hidden flex items-end justify-center pb-24" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute top-10 left-20 text-3xl animate-pulse opacity-80">⭐</div>
+              <div className="absolute top-20 right-32 text-2xl animate-pulse opacity-80">⭐</div>
+              <div className="absolute top-12 right-24 text-6xl opacity-50">🌙</div>
+              <div className="absolute top-8 left-16 flex gap-4"><div className="text-4xl">🧺</div><div className="text-3xl">🍶</div></div>
+              <div className="absolute top-8 right-16 flex gap-4"><div className="text-3xl">🫙</div><div className="text-4xl">🥛</div></div>
+              <div className="absolute left-0 bottom-32 w-40 h-56 opacity-50 rounded-r-3xl" style={{background: 'linear-gradient(to bottom, #708090, #2F4F4F)'}}>
+                <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-black rounded border-4 border-gray-600"></div>
+              </div>
+              <div className="absolute right-0 bottom-32 w-40 h-56 opacity-50 rounded-l-3xl" style={{background: 'linear-gradient(to bottom, #708090, #2F4F4F)'}}>
+                <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-black rounded border-4 border-gray-600"></div>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              
+              <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-center z-30">
+                <h2 className="text-5xl mb-2" style={{color: '#ffd54f', textShadow: '4px 4px 0px #3d2817, -2px -2px 0px #3d2817, 2px -2px 0px #3d2817, -2px 2px 0px #3d2817'}}>
+                  Step 1: Choose Your Flavor! 🌟
+                </h2>
+                <p className="text-white text-2xl" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>Pick your favorite ingredient!</p>
+              </div>
+              
+              <div className="absolute left-16 bottom-28 z-40">
+                <img 
+                  src="https://cdn.jsdelivr.net/gh/heeyeon-han/cookierun-fonts@main/ch06_0005.png"
+                  alt="Chef"
+                  className="w-40 h-40 object-contain"
+                  style={{filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))'}}
+                />
+                <div className="absolute top-8 left-full ml-6 bg-white px-6 py-3 rounded-3xl shadow-xl border-4 border-yellow-400 whitespace-nowrap">
+                  <p className="text-lg text-gray-800">Choose wisely! 😊</p>
+                  <div className="absolute top-1/2 right-full mr-1 transform -translate-y-1/2 w-0 h-0" style={{borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderRight: '12px solid #facc15'}}/>
+                  <div className="absolute top-1/2 right-full mr-2 transform -translate-y-1/2 w-0 h-0" style={{borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderRight: '10px solid white'}}/>
+                </div>
+              </div>
+              
+              <div className="relative w-full max-w-6xl z-20 mb-8">
+                <div className="rounded-t-3xl px-20 pt-20 pb-12" style={{background: 'repeating-linear-gradient(90deg, #F4D03F 0px, #F4D03F 80px, #F7DC6F 80px, #F7DC6F 160px), linear-gradient(to bottom, #F9E79F, #F4D03F)', border: '10px solid #D4AC0D', borderBottom: 'none', boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.1)'}}>
+                  <div className="absolute inset-0 rounded-t-3xl opacity-15 pointer-events-none" style={{background: 'linear-gradient(135deg, transparent 30%, white 50%, transparent 70%)'}}/>
+                  
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-12 relative">
+                    {flavors.map(flavor => {
+                      const isHovered = hoveredItem === flavor.id;
+                      const isDimmed = hoveredItem && !isHovered;
+                      return (
+                        <button key={flavor.id} onClick={() => { setSelectedFlavor(flavor.id); setTimeout(() => setStage('personality'), 500); }}
+                          onMouseEnter={() => setHoveredItem(flavor.id)} onMouseLeave={() => setHoveredItem(null)}
+                          className={`relative transition-all duration-300 ${isHovered ? 'scale-150 -translate-y-16 z-50' : ''} ${isDimmed ? 'opacity-20 blur-sm' : ''}`}>
+                          <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-black/30 rounded-full transition-all ${isHovered ? 'w-32 h-8 blur-2xl' : 'w-24 h-6 blur-xl'}`}/>
+                          <div className="text-8xl" style={{filter: `drop-shadow(0 8px 16px rgba(0,0,0,0.25)) ${isHovered ? 'drop-shadow(0 0 40px gold) brightness(1.3)' : ''}`, transform: 'rotate(' + (Math.random() * 15 - 7.5) + 'deg)', animation: isHovered ? 'float 1s infinite' : 'none'}}>
+                            {flavor.emoji}
+                          </div>
+                          {isHovered && (
+                            <>
+                              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-white px-6 py-3 rounded-full text-sm text-gray-800 shadow-2xl border-4 border-yellow-400 whitespace-nowrap">{flavor.name}</div>
+                              <div className="absolute -top-10 -right-10 text-6xl animate-pulse">✨</div>
+                              <div className="absolute -top-10 -left-10 text-5xl animate-pulse">💫</div>
+                            </>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                <div className="h-24 rounded-b-3xl relative" style={{background: 'linear-gradient(to bottom, #F39C12, #E67E22)', border: '10px solid #D4AC0D', borderTop: 'none', boxShadow: '0 15px 40px rgba(0,0,0,0.4)'}}>
+                  <div className="absolute top-0 left-0 right-0 h-4 opacity-60" style={{background: '#FFE5B4', clipPath: 'polygon(0% 0%, 5% 100%, 10% 0%, 15% 100%, 20% 0%, 25% 100%, 30% 0%, 35% 100%, 40% 0%, 45% 100%, 50% 0%, 55% 100%, 60% 0%, 65% 100%, 70% 0%, 75% 100%, 80% 0%, 85% 100%, 90% 0%, 95% 100%, 100% 0%)'}}/>
+                </div>
+                
+                <div className="absolute -bottom-16 left-1/4 flex gap-6">
+                  <div className="text-5xl" style={{transform: 'rotate(-15deg)'}}>🥄</div>
+                  <div className="text-6xl" style={{transform: 'rotate(-20deg)'}}>🥣</div>
+                </div>
+                <div className="absolute -bottom-16 right-1/4 flex gap-6">
+                  <div className="text-6xl" style={{transform: 'rotate(25deg)'}}>🔪</div>
+                  <div className="text-5xl" style={{transform: 'rotate(15deg)'}}>🍰</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2 */}
+          {stage === 'personality' && (
+            <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              <div className="relative z-20 flex flex-col items-center justify-center min-h-screen p-8">
+                <h2 className="text-5xl mb-3" style={{color: '#ffd54f', textShadow: '4px 4px 0px #3d2817, -2px -2px 0px #3d2817, 2px -2px 0px #3d2817, -2px 2px 0px #3d2817'}}>
+                  Step 2: Magic Powder! ✨
+                </h2>
+                <p className="text-white text-2xl mb-16" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>Choose your Cookie's personality!</p>
+                <div className="grid grid-cols-2 gap-12 max-w-3xl">
+                  {personalities.map(p => {
+                    const isHovered = hoveredItem === p.id;
+                    const isDimmed = hoveredItem && !isHovered;
+                    return (
+                      <button key={p.id} onClick={() => { setSelectedPersonality(p.id); setTimeout(() => setStage('mixing'), 300); }}
+                        onMouseEnter={() => setHoveredItem(p.id)} onMouseLeave={() => setHoveredItem(null)}
+                        className={`p-12 rounded-3xl transition-all duration-300 border-6 border-white ${isHovered ? 'scale-110 -translate-y-4' : ''} ${isDimmed ? 'opacity-30 blur-sm' : ''}`}
+                        style={{background: p.color, boxShadow: isHovered ? '0 20px 60px rgba(0,0,0,0.4)' : '0 10px 30px rgba(0,0,0,0.3)'}}>
+                        <div className="text-8xl mb-4" style={{animation: isHovered ? 'float 1s infinite' : 'none'}}>{p.emoji}</div>
+                        <div className="text-3xl text-white" style={{textShadow: '3px 3px 6px rgba(0,0,0,0.5)'}}>{p.name}</div>
+                        {isHovered && (
+                          <>
+                            <div className="absolute -top-6 -right-6 text-5xl animate-pulse">✨</div>
+                            <div className="absolute -top-6 -left-6 text-4xl animate-pulse">💫</div>
+                          </>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3 */}
+          {stage === 'mixing' && (
+            <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              <div className="relative z-20 flex flex-col items-center justify-center min-h-screen p-8 text-center">
+                <h2 className="text-5xl mb-8" style={{color: '#ffd54f', textShadow: '4px 4px 0px #3d2817, -2px -2px 0px #3d2817, 2px -2px 0px #3d2817, -2px 2px 0px #3d2817'}}>
+                  Step 3: Mix the Dough! 🥣
+                </h2>
+                <div className="text-9xl mb-8 animate-bounce">🥣</div>
+                <div className="mb-12">
+                  <div className="text-8xl inline-block" style={{animation: 'float 2s infinite'}}>{flavors.find(f => f.id === selectedFlavor)?.emoji}</div>
+                  <div className="text-5xl my-6">+</div>
+                  <div className="text-8xl inline-block" style={{animation: 'float 2s infinite', animationDelay: '0.5s'}}>{personalities.find(p => p.id === selectedPersonality)?.emoji}</div>
+                </div>
+                <button onClick={() => setStage('baking')} className="bg-orange-500 text-white px-16 py-7 rounded-full text-3xl hover:scale-110 hover:bg-orange-600 transition-all shadow-2xl border-4 border-white">
+                  Ready to Bake! 🔥
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4 */}
+          {stage === 'baking' && (
+            <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              <div className="relative z-20 flex flex-col items-center justify-center min-h-screen p-8 text-center">
+                <h2 className="text-5xl mb-8" style={{color: '#ffd54f', textShadow: '4px 4px 0px #3d2817, -2px -2px 0px #3d2817, 2px -2px 0px #3d2817, -2px 2px 0px #3d2817'}}>
+                  Step 4: Bake Your Cookie! 🔥
+                </h2>
+                {!bakingResult ? (
+                  <>
+                    <div className="mb-8">
+                      <svg className={`inline-block ${isOvenActive ? 'text-orange-500 animate-pulse' : 'text-gray-400'}`} width="150" height="150" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    </div>
+                    <div className="w-full max-w-2xl bg-gray-200 rounded-full h-12 mb-6 overflow-hidden border-4 border-gray-800">
+                      <div className={`h-full transition-all rounded-full ${ovenTimer < 30 ? 'bg-red-500' : ovenTimer < 70 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{width: `${ovenTimer}%`}}/>
+                    </div>
+                    <div className="text-2xl font-bold mb-8">
+                      {ovenTimer < 30 && <span className="text-red-500">🔥 Too Hot!</span>}
+                      {ovenTimer >= 30 && ovenTimer < 70 && <span className="text-yellow-500">✨ Getting Better...</span>}
+                      {ovenTimer >= 70 && <span className="text-green-500">🌟 Perfect Zone!</span>}
+                    </div>
+                    {!isOvenActive ? (
+                      <button onClick={() => { setIsOvenActive(true); setOvenTimer(0); }} className="bg-orange-500 text-white px-16 py-7 rounded-full text-3xl hover:scale-110 hover:bg-orange-600 transition-all shadow-2xl border-4 border-white">
+                        Start Baking! 🔥
+                      </button>
+                    ) : (
+                      <button onClick={stopBaking} className="bg-green-500 text-white px-16 py-7 rounded-full text-3xl hover:scale-110 transition-all shadow-2xl border-4 border-white animate-pulse">
+                        Stop Now! ⏱️
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    <div className="text-9xl mb-6">{bakingResult.level === 'bad' ? '😰' : bakingResult.level === 'good' ? '😊' : '🤩'}</div>
+                    <h3 className="text-4xl mb-4 text-white" style={{textShadow: '3px 3px 6px rgba(0,0,0,0.5)'}}>{bakingResult.message}</h3>
+                    <div className="text-9xl animate-bounce mt-8">🍪</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* RESULT */}
+          {stage === 'result' && finalCookie && (
+            <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 25%, #E8D5B7 60%, #D2B48C 100%)'}}>
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{background: 'repeating-linear-gradient(45deg, #F5DEB3 0px, #F5DEB3 40px, #DEB887 40px, #DEB887 80px)', borderTop: '4px solid #8B7355'}}/>
+              <div className="relative z-20 flex flex-col items-center justify-center min-h-screen p-8 text-center">
+                <svg className="text-yellow-400 mb-6 animate-bounce" width="80" height="80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                <h2 className="text-5xl mb-8" style={{color: '#ffd54f', textShadow: '4px 4px 0px #3d2817, -2px -2px 0px #3d2817, 2px -2px 0px #3d2817, -2px 2px 0px #3d2817'}}>
+                  Your Cookie is Ready!
+                </h2>
+                <img src={finalCookie.image} alt={finalCookie.name} className="w-80 h-80 object-contain mb-8 animate-bounce" style={{filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))'}}/>
+                <h3 className="text-4xl mb-4 text-white" style={{textShadow: '3px 3px 6px rgba(0,0,0,0.5)'}}>{finalCookie.name}</h3>
+                <div className="bg-yellow-100 px-6 py-3 rounded-2xl mb-6 border-4 border-yellow-400">
+                  <p className="text-xl text-gray-800">⚡ {finalCookie.skill}</p>
+                </div>
+                <p className="text-white text-xl mb-10 max-w-2xl italic" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>{finalCookie.story}</p>
+                <div className="space-y-4 max-w-xl w-full">
+                  <button className="w-full bg-orange-500 text-white px-12 py-6 rounded-full text-2xl hover:scale-105 hover:bg-orange-600 transition-all shadow-2xl flex items-center justify-center gap-3 border-4 border-white">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Start Running in CookieRun India!
+                  </button>
+                  <button onClick={reset} className="w-full bg-white text-gray-800 px-10 py-5 rounded-full text-xl hover:bg-gray-100 transition-all shadow-xl border-4 border-gray-300">
+                    Create Another Cookie 🍪
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<CookieRunAd />, document.getElementById('root'));
+  </script>
+</body>
+</html>
